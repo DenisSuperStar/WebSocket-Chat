@@ -21,5 +21,10 @@
   "bugs": {
     "url": "https://github.com/DenisSuperStar/WebSocket-Chat/issues"
   },
-  "homepage": "https://github.com/DenisSuperStar/WebSocket-Chat#readme"
+  "homepage": "https://github.com/DenisSuperStar/WebSocket-Chat#readme",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "socket.io": "^4.2.0"
+  }
 }
