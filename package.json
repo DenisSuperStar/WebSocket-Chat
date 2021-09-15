@@ -1,0 +1,25 @@
+{
+  "name": "expresswebsocket",
+  "version": "0.1.0",
+  "description": "express application with websocket",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DenisSuperStar/WebSocket-Chat.git"
+  },
+  "keywords": [
+    "Socket.io",
+    "chat",
+    "express",
+    "application"
+  ],
+  "author": "Denis Shklyarskij",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DenisSuperStar/WebSocket-Chat/issues"
+  },
+  "homepage": "https://github.com/DenisSuperStar/WebSocket-Chat#readme"
+}
