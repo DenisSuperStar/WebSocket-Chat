@@ -1,43 +1,48 @@
 <%- include('partials/metadata')%>
-<body>
-    <div class="container" id="formChatBox">
-        <form action="/" method="post" class="chat-form" id="chatForm">
-            <div class="mb-3 row chat-form__field-wrapper">
-                <div class="col-12 chat-form__field-box">
-                    <label class="form-label chat-form__input-box">
-                        <span class="chat-form__plaintext">Имя пользователя</span>
-                        <input 
-                            type="text" 
-                            class="form-control chat-form__input" 
-                            id="userName" 
-                            placeholder="Ваше имя" 
-                            autocomplete="off" 
-                            name="username" 
-                            required
-                        >
-                    </label>
+    <body>
+        <div class="container" id="formChatBox">
+            <form class="chat-form" id="chatForm">
+                <div class="mb-3 row chat-form__field-wrapper">
+                    <div class="col-12 chat-form__field-box">
+                        <label class="form-label chat-form__input-box">
+                            <span class="chat-form__plaintext">Имя пользователя</span>
+                            <input
+                                type="text" 
+                                class="form-control chat-form__input" 
+                                id="userName"
+                                placeholder="Ваше имя"
+                                autocomplete="off"
+                                name="username"
+                                required
+                            >
+                        </label>
+                    </div>
                 </div>
-            </div>
-            <div class="mb-3 chat-form__btn-box">
-                <input 
-                    type="button" 
-                    class="btn btn-light chat-form__btn" 
-                    autocomplete="off" 
-                    value="Войти в чат"
-                >
-            </div>
-        </form>
+                <div class="mb-3 chat-form__btn-box">
+                    <input 
+                        type="submit" 
+                        class="btn btn-light chat-form__btn"
+                        autocomplete="off"
+                        value="Войти в чат"
+                    >
+                </div>
+            </form>
+        </div>
         <div class="d-none message-box" id="messageBox">
             <form class="form-message ml-2 mr-2" id="messageForm" name="chat">
                 <div class="container form-message__chat-box">
-                    <div class="row form-message__chat-message">
-                        <div class="col-12 form-message__input-box">
+                    <div class="row form-message__chat-message" id="greeting">
+                        <div class="col-12 greeting">
+                            <div class="alert greeting__text"></div>
+                        </div>
+                        <div class="col-12 form-message__submit-box">
                             <input 
                                 type="text" 
                                 class="form-control form-message__input" 
                                 autocomplete="off" 
                                 placeholder="Ваше сообщение..." 
-                                id="submitMessage"
+                                id="submitMessage" 
+                                required
                             >
                         </div>
                     </div>
@@ -49,5 +54,11 @@
                 </div>
             </div>
         </div>
-    </div>
-</body>
+        <!-- include self socket -->
+        <script src="https://cdn.socket.io/4.1.2/socket.io.min.js" integrity="sha384-toS6mmwu70G0fw54EGlWWeA4z3dyJ+dlXBtSURSKN4vyRFOcxd3Bzjj/AoOwY+Rg" crossorigin="anonymous"></script>
+        <!-- include socket client-side script -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <!-- include socket client-side script -->
+        <script src="../chat.js"></script>
+    </body>
+</html>
