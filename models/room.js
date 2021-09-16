@@ -23,3 +23,6 @@ const roomSchema = new Schema({
 });
 
 module.exports = model('Room', roomSchema);
+
+// room.message.push({text: '', time: ''});
+// room.save(err => {});
