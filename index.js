@@ -10,26 +10,33 @@ const io = new Server(server);
 const { PORT } = require('./config.js');
 
 io.on('connection', socket => {
-    console.log('a user connected');
-    socket.on('login', user => {
-        console.log('a user connected!');
-        const { id } = socket;
+    const { id } = socket;
+    socket.on('join', user => {
         const { name } = user;
-        socket.join(id);
-        io.to(id).emit('joining', { message: `${name} присоединился к обсуждению.` });
+
+        if (name) {
+            socket.join(id);
+            socket.emit('join', {
+                message: `${name} присоединился к обсуждению`,
+                status: 'OK'
+            });
+        } else {
+            socket.emit('join', {
+                status: 'FAILED'
+            });
+        }
     });
 
     socket.on('chat message', msg => {
         socket.broadcast.emit('chat message', msg);
+        socket.emit('chat message', msg);
     });
 
-    socket.on('disconnect', user  => {
-        console.log('a user disconnecting!');
-        const { name } = user;
-        socket.leave(id);
-        io.to.emit('leaving', { message: `${name} покинул чат.` });
-    });
+    socket.on('disconnect', () => {});
 });
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static(path.join(__dirname, '/public')));
 
