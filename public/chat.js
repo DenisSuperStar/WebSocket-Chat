@@ -11,6 +11,36 @@ $(() => {
     const newMessage = $("#newMessage");
     const greeting = $('#greeting');
 
+    const greetingTemp = message => {
+        return `
+            <div class="col-12 greeting">
+                <div class="alert greeting__text">${message}</div>
+            </div>
+        `;
+    }
+
+    const messageTemp = (name, time, msg) => {
+        return `
+            <div class="new-message__info">
+                <div class="new-message__user-info-box">
+                    <div class="container new-message__user-info">
+                        <div class="row new-message__data">
+                            <div class="col-9 new-message__username-val-box">
+                                <div class="alert new-message__username-val">${name}</div>
+                            </div>
+                            <div class="col-3 new-message__submit-time-box">
+                                <div class="alert new-message__submit-time">${time}</div>
+                            </div>
+                            <div class="col-12 new-message__added-message-box">
+                                <div class="alert new-message__added-message">${msg}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        `;
+    }
+
     chatForm.on('submit', e => {
         e.preventDefault();
         socket.emit('join', { name: userName.val() });
@@ -18,17 +48,11 @@ $(() => {
 
     socket.on('join', data => {
         const { message, status } = data;
-        
+
         if (status === 'OK') {
             formChatBox.addClass("d-none");
             messageBox.removeClass("d-none");
-            greeting.prepend(
-                `
-                    <div class="col-12 greeting">
-                        <div class="alert greeting__text">${message}</div>
-                    </div>
-                `
-            );
+            greeting.prepend(greetingTemp(message));
         }
     });
 
@@ -52,26 +76,6 @@ $(() => {
     socket.on('chat message', data => {
         const { name, time, msg } = data;
 
-        newMessage.append(
-            `
-                <div class="new-message__info">
-                    <div class="new-message__user-info-box">
-                        <div class="container new-message__user-info">
-                            <div class="row new-message__data">
-                                <div class="col-9 new-message__username-val-box">
-                                    <div class="alert new-message__username-val">${name}</div>
-                                </div>
-                                <div class="col-3 new-message__submit-time-box">
-                                    <div class="alert new-message__submit-time">${time}</div>
-                                </div>
-                                <div class="col-12 new-message__added-message-box">
-                                    <div class="alert new-message__added-message">${msg}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        );
+        newMessage.append(messageTemp(name, time, msg));
     });
 });
