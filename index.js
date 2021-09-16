@@ -8,16 +8,22 @@ const server = createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
 const { PORT } = require('./config.js');
+const Room = require('./models/room.js');
 
 io.on('connection', socket => {
     const { id } = socket;
+    let room;
+
     socket.on('join', user => {
+        /*console.log(user);*/
         const { name } = user;
 
         if (name) {
+            room = new Room(id, name);
+
             socket.join(id);
             socket.emit('join', {
-                message: `${name} присоединился к обсуждению`,
+                message: `${name} присоединился к обсуждению.`,
                 status: 'OK'
             });
         } else {
@@ -27,9 +33,14 @@ io.on('connection', socket => {
         }
     });
 
-    socket.on('chat message', msg => {
-        socket.broadcast.emit('chat message', msg);
-        socket.emit('chat message', msg);
+    socket.on('chat message', async data => {
+        /*console.log(data);*/
+        const { msg, time } = data;
+        room.message.push({ text: msg, time });
+        socket.broadcast.emit('chat message', data);
+        socket.emit('chat message', data);
+
+        await room.save();
     });
 
     socket.on('disconnect', () => {});
