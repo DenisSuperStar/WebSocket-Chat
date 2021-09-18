@@ -9,6 +9,7 @@ const { Server } = require('socket.io');
 const io = new Server(server);
 const { PORT } = require('./config.js');
 const User = require('./models/user.js');
+let client;
 
 // устанавливаем соединение с socket
 io.on('connection', socket => {
@@ -23,19 +24,20 @@ io.on('connection', socket => {
             const { username, id, message } = person;
             // присоединяем пользователя к комнате, где он был ранее
             socket.join(id);
-            // отправляем ему его сообщения
+            // отправляем user его сообщения при возвращении в чат
             io.sockets.socket(id).emit('come back chat', {
                 name: username,
                 messages: message
             });
         } else {
             if ((name) && (room)) {
+                client = new User({ username: name, id: room });
                 socket.emit('join', {
                     message: `${name} присоединился к обсуждению ${room}.`,
                     status: 'OK'
                 });
-                // присоединяем пользователя к его комнате
-                socket.join(room);
+                // присоединяем user к его комнате
+                socket.join(room); 
             } else {
                 socket.emit('join', {
                     status: 'FAILED'
@@ -46,11 +48,12 @@ io.on('connection', socket => {
 
 
     // отправка сообщения в чат
-    socket.on('chat message', data => {
-        // сохранение данных о пользователе в чате
-        const { name, room, msg, time } = data;
-        const user = new User({ username: name, id: room});
-        user.message.push({ msg, time });
+    socket.on('chat message', async data => {
+        const { room, msg, time } = data;
+        // добавляем сообщение пользователя в массив
+        client.message.push({ msg, time });
+        // сохраняем user
+        await client.save();
         
         // отправляем сообщение всем клиентам в комнате, включая отправителя
         io.sockets.in(room).emit('chat message', data);
