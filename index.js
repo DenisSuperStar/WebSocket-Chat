@@ -12,29 +12,30 @@ const User = require('./models/user.js');
 
 // устанавливаем соединение с socket
 io.on('connection', socket => {
-    // id комнаты
-    const { id } = socket;
     // регистрация пользователя в чате
     socket.on('join', async user => {
-        // имя пользователя в чате
-        const { name } = user;
+        const { name, room } = user;
 
-        // находим пользователя по нику в чате
-        const user = User.findOne({ username: name });
-
+        // находим пользователя по Ник в чате
+        const person = await User.findOne({ username: name });
         // если такой юзер есть в чате
-        if (user) {
+        if (person) {
+            const { username, id, message } = person;
+            // присоединяем пользователя к комнате, где он был ранее
+            socket.join(id);
             // отправляем ему его сообщения
-            io.sockets.socket(user.id).emit('chat message', user.message);
+            io.sockets.socket(id).emit('come back chat', {
+                name: username,
+                messages: message
+            });
         } else {
-            if (name) {
-                // выполнить присоединение к комнате по id
-                socket.join(id);
-                // отправляем приветствие пользователю
+            if ((name) && (room)) {
                 socket.emit('join', {
-                    message: `${name} присоединился к обсуждению.`,
+                    message: `${name} присоединился к обсуждению ${room}.`,
                     status: 'OK'
                 });
+                // присоединяем пользователя к его комнате
+                socket.join(room);
             } else {
                 socket.emit('join', {
                     status: 'FAILED'
@@ -47,12 +48,12 @@ io.on('connection', socket => {
     // отправка сообщения в чат
     socket.on('chat message', data => {
         // сохранение данных о пользователе в чате
-        const { name, msg, time } = data;
-        const user = new User(name, id);
-        user.message.push({ message: msg, time });
+        const { name, room, msg, time } = data;
+        const user = new User({ username: name, id: room});
+        user.message.push({ msg, time });
         
         // отправляем сообщение всем клиентам в комнате, включая отправителя
-        io.sockets.in(id).emit('chat message', data);
+        io.sockets.in(room).emit('chat message', data);
     });
 
     // отключение соединения с socket
