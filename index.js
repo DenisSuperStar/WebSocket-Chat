@@ -8,41 +8,54 @@ const server = createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
 const { PORT } = require('./config.js');
-const Room = require('./models/room.js');
+const User = require('./models/user.js');
 
+// устанавливаем соединение с socket
 io.on('connection', socket => {
+    // id комнаты
     const { id } = socket;
-    let room;
-
-    socket.on('join', user => {
-        /*console.log(user);*/
+    // регистрация пользователя в чате
+    socket.on('join', async user => {
+        // имя пользователя в чате
         const { name } = user;
 
-        if (name) {
-            room = new Room(id, name);
+        // находим пользователя по нику в чате
+        const user = User.findOne({ username: name });
 
-            socket.join(id);
-            socket.emit('join', {
-                message: `${name} присоединился к обсуждению.`,
-                status: 'OK'
-            });
+        // если такой юзер есть в чате
+        if (user) {
+            // отправляем ему его сообщения
+            io.sockets.socket(user.id).emit('chat message', user.message);
         } else {
-            socket.emit('join', {
-                status: 'FAILED'
-            });
+            if (name) {
+                // выполнить присоединение к комнате по id
+                socket.join(id);
+                // отправляем приветствие пользователю
+                socket.emit('join', {
+                    message: `${name} присоединился к обсуждению.`,
+                    status: 'OK'
+                });
+            } else {
+                socket.emit('join', {
+                    status: 'FAILED'
+                });
+            }
         }
     });
 
-    socket.on('chat message', async data => {
-        /*console.log(data);*/
-        const { msg, time } = data;
-        room.message.push({ text: msg, time });
-        socket.broadcast.emit('chat message', data);
-        socket.emit('chat message', data);
 
-        await room.save();
+    // отправка сообщения в чат
+    socket.on('chat message', data => {
+        // сохранение данных о пользователе в чате
+        const { name, msg, time } = data;
+        const user = new User(name, id);
+        user.message.push({ message: msg, time });
+        
+        // отправляем сообщение всем клиентам в комнате, включая отправителя
+        io.sockets.in(id).emit('chat message', data);
     });
 
+    // отключение соединения с socket
     socket.on('disconnect', () => {});
 });
 
@@ -65,6 +78,7 @@ app.use((err, req, res, next) => {
     res.status(500).send('Упс! Что-то сломалось...');
 });
 
+// подключить базу данных mongo db
 server.listen(PORT, () => {
     console.log(`Сервер прослушивает сообщения на порту ${PORT}`);
 });
