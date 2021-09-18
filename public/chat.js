@@ -5,6 +5,7 @@ $(() => {
     const formChatBox = $("#formChatBox");
     const chatForm = $("#chatForm");
     const userName = $("#userName");
+    const roomName = $('#roomName');
     const messageBox = $("#messageBox");
     const messageForm = $("#messageForm");
     const submitMessage = $("#submitMessage");
@@ -43,7 +44,7 @@ $(() => {
 
     chatForm.on('submit', e => {
         e.preventDefault();
-        socket.emit('join', { name: userName.val() });
+        socket.emit('join', { name: userName.val(), room: roomName.val() });
     });
 
     socket.on('join', data => {
@@ -65,6 +66,7 @@ $(() => {
         if (submitMessage.val()) {
             socket.emit('chat message', {
                 name: userName.val(),
+                room: roomName.val(),
                 msg: submitMessage.val(),
                 time: currentTime
             });
@@ -77,5 +79,10 @@ $(() => {
         const { name, time, msg } = data;
 
         newMessage.append(messageTemp(name, time, msg));
+    });
+
+    socket.on('come back chat', data => {
+        console.log(data);
+        // в этом месте отрендерим все сообщения и вставим в блок new message
     });
 });
