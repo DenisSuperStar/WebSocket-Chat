@@ -12,6 +12,19 @@ const mongoose = require('mongoose');
 const { PORT, DATABASE_HOST, DATABASE_NAME, DATABASE_CONF } = require('./config.js');
 let client;
 
+/*mongoose.connect(`mongodb://${DATABASE_HOST}/${DATABASE_NAME}`, DATABASE_CONF, err => {
+    if (err) throw err;
+
+    server.listen(PORT, () => {
+        console.log(`Сервер прослушивает сообщения на порту ${PORT}`);
+    });
+});*/
+
+// установка соединения с бд
+mongoose.connect(`mongodb://${DATABASE_HOST}/${DATABASE_NAME}`, DATABASE_CONF, err => {
+    if (err) throw err;
+});
+
 // устанавливаем соединение с socket
 io.on('connection', socket => {
     // регистрация пользователя в чате
@@ -54,14 +67,21 @@ io.on('connection', socket => {
         // добавляем сообщение пользователя в массив
         client.message.push({ msg, time });
         // сохраняем user
-        await client.save();
+        await client.save(err => {
+            if (err) {
+                mongoose.disconnect();
+            }
+        });
         
         // отправляем сообщение всем клиентам в комнате, включая отправителя
         io.sockets.in(room).emit('chat message', data);
     });
 
     // отключение соединения с socket
-    socket.on('disconnect', () => {});
+    socket.on('disconnect', () => {
+        // отключения соединения с бд
+        mongoose.disconnect();
+    });
 });
 
 app.set('view engine', 'ejs');
@@ -83,10 +103,7 @@ app.use((err, req, res, next) => {
     res.status(500).send('Упс! Что-то сломалось...');
 });
 
-mongoose.connect(`mongodb://${DATABASE_HOST}/${DATABASE_NAME}`, DATABASE_CONF, err => {
-    if (err) throw err;
-
-    server.listen(PORT, () => {
-        console.log(`Сервер прослушивает сообщения на порту ${PORT}`);
-    });
+// запускаем сервер на 3000 порту
+server.listen(PORT, () => {
+    console.log(`Сервер прослушивает сообщения на порту ${PORT}`);
 });
