@@ -12,14 +12,6 @@ const mongoose = require('mongoose');
 const { PORT, DATABASE_HOST, DATABASE_NAME, DATABASE_CONF } = require('./config.js');
 let client;
 
-/*mongoose.connect(`mongodb://${DATABASE_HOST}/${DATABASE_NAME}`, DATABASE_CONF, err => {
-    if (err) throw err;
-
-    server.listen(PORT, () => {
-        console.log(`Сервер прослушивает сообщения на порту ${PORT}`);
-    });
-});*/
-
 // установка соединения с бд
 mongoose.connect(`mongodb://${DATABASE_HOST}/${DATABASE_NAME}`, DATABASE_CONF, err => {
     if (err) throw err;
