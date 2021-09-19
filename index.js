@@ -7,8 +7,9 @@ const { createServer } = http;
 const server = createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
-const { PORT } = require('./config.js');
 const User = require('./models/user.js');
+const mongoose = require('mongoose');
+const { PORT, DATABASE_HOST, DATABASE_NAME, DATABASE_CONF } = require('./config.js');
 let client;
 
 // устанавливаем соединение с socket
@@ -82,7 +83,10 @@ app.use((err, req, res, next) => {
     res.status(500).send('Упс! Что-то сломалось...');
 });
 
-// подключить базу данных mongo db
-server.listen(PORT, () => {
-    console.log(`Сервер прослушивает сообщения на порту ${PORT}`);
+mongoose.connect(`mongodb://${DATABASE_HOST}/${DATABASE_NAME}`, DATABASE_CONF, err => {
+    if (err) throw err;
+
+    server.listen(PORT, () => {
+        console.log(`Сервер прослушивает сообщения на порту ${PORT}`);
+    });
 });
