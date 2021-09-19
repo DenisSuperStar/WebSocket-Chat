@@ -82,7 +82,10 @@ $(() => {
     });
 
     socket.on('come back chat', data => {
-        console.log(data);
-        // в этом месте отрендерим все сообщения и вставим в блок new message
+        const { username, messages } = data;
+
+        for (message of messages) {
+            newMessage.append(messageTemp(username, message.time, message.msg));
+        }
     });
 });
